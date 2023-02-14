@@ -15,7 +15,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force
 ### Install scoop ###
 
 if ((Get-Command "scoop" -ErrorAction SilentlyContinue) -eq $null) {
-    { irm get.scoop.sh | iex }
+    irm get.scoop.sh | iex
     $env:PATH="$env:PATH;$env:USERPROFILE\scoop\shims"
 }
 
@@ -67,8 +67,9 @@ cmd.exe /c "net use U: ""\\wsl.localhost\$distribution"""
 ### Create shortcuts ###
 
 Write-Host "デスクトップに HOME ショートカットを作成します。"
+$desktopPath = [System.Environment]::GetFolderPath("Desktop")
 $WshShell = New-Object -comObject WScript.Shell
-$Shortcut = $WshShell.CreateShortcut("$env:USERPROFILE\Desktop\HOME.lnk")
+$Shortcut = $WshShell.CreateShortcut($desktopPath + "\HOME.lnk")
 $Shortcut.TargetPath = "\\wsl.localhost\$distribution\home\$env:USERNAME"
 $Shortcut.Save()
 

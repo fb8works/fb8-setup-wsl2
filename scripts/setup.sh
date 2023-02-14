@@ -78,23 +78,37 @@ sudo ntpdate time.windows.com
 ### install package ###
 
 sudo apt-get update
-sudo apt-get install -y git make
+sudo apt-get install -y git make wslu
 
 git config --global credential.helper store
 
+### browser
+
+# see /usr/bin/wslview
+sudo update-alternatives --install /usr/bin/x-www-browser x-www-browser /usr/bin/wslview 50
+sudo update-alternatives --install /usr/bin/www-browser www-browser /usr/bin/wslview 50
+
+if [ ! -f ~/.local/share/applications/wslview/wslview.desktop ]; then
+    mkdir -p ~/.local/share/applications/wslview
+    cat > ~/.local/share/applications/wslview/wslview.desktop <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=wslview
+Comment=wslview
+Terminal=false
+Exec=wslview
+Categories=Network;WebBrowser
+EOF
+    xdg-settings set default-web-browser wslview.desktop
+    xdg-mime default wslview.desktop image/jpeg
+    xdg-mime default wslview.desktop image/png
+fi
+
 ### create symbolic links ###
 
-USERPROFILE=$(wslpath -ua "$(cd /mnt/c; cmd.exe /c "echo %USERPROFILE%" | tr -d \\r)")
-DOCUMENTS="$USERPROFILE/Documents"
-
-ln -srf "$USERPROFILE"/Documents/dataentry ~/
-ln -srf "$USERPROFILE"/Documents ~
-ln -srf "$USERPROFILE"/Downloads ~
-ln -srf "$USERPROFILE"/Desktop ~
-
-if [ -d dataentry ]; then
-    find dataentry/ -type f | xargs chmod 644
-fi
+ln -srfT "$(wslvar -l Desktop)" ~/Desktop
+ln -srfT "$(wslvar -l Personal)" ~/Documents
+ln -srfT "$(wslvar -l "{374DE290-123F-4565-9164-39C4925E467B}")" ~/Downloads
 
 echo ""
 echo "Ubuntu の基本セットアップが完了しました。"
